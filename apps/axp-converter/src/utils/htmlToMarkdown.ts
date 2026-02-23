@@ -56,7 +56,40 @@ const turndown = new TurndownService({
 // Strip noise tags entirely
 turndown.remove(['script', 'style', 'noscript']);
 
+// ── Content extraction ───────────────────────────────────────────────────────
+
+/**
+ * Extract the main page content from a full HTML document, stripping
+ * headers, footers, navigation, and sidebars.
+ *
+ * Tier 1: If a <main> or <article> tag exists, use only its contents.
+ * Tier 2: Otherwise strip known noise elements (semantic tags + ARIA roles).
+ * Fragments without a <body> pass through unchanged.
+ */
+function extractPageContent(html: string): string {
+  try {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+
+    // Tier 1: prefer semantic content containers
+    const main = doc.querySelector('main') || doc.querySelector('article');
+    if (main) return main.innerHTML;
+
+    // Tier 2: strip known noise elements from <body>
+    const noiseSelectors = [
+      'header', 'footer', 'nav', 'aside',
+      '[role="navigation"]', '[role="banner"]', '[role="contentinfo"]',
+      '[role="complementary"]',
+    ];
+    doc.querySelectorAll(noiseSelectors.join(', ')).forEach((el) => el.remove());
+
+    return doc.body?.innerHTML ?? html;
+  } catch {
+    return html; // parsing failed — pass through unchanged
+  }
+}
+
 /** Convert an HTML string (full page or fragment) to markdown. */
 export function convertHtmlToMarkdown(html: string): string {
-  return turndown.turndown(html).trim();
+  const content = extractPageContent(html);
+  return turndown.turndown(content).trim();
 }
