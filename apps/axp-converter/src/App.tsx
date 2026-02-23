@@ -11,6 +11,7 @@ import {
   Check,
   ChevronRight,
   Link2,
+  ClipboardPaste,
 } from 'lucide-react';
 import JSZip from 'jszip';
 import { extractLinkPool } from './utils/urlExtractor';
@@ -50,6 +51,11 @@ export default function App() {
   // drag state
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // paste panel state
+  const [pasteOpen, setPasteOpen] = useState(false);
+  const [pasteText, setPasteText] = useState('');
+  const [pasteName, setPasteName] = useState('');
 
   // processing state
   const [appState, setAppState] = useState<AppState>('idle');
@@ -108,6 +114,32 @@ export default function App() {
     setError('');
     setStatusMessage('');
   }, []);
+
+  // ── paste text ──
+
+  const openPaste = useCallback(() => {
+    setPasteName(`paste-${uploadedFiles.length + 1}.txt`);
+    setPasteText('');
+    setPasteOpen(true);
+  }, [uploadedFiles.length]);
+
+  const addPastedFile = useCallback(() => {
+    if (!pasteText.trim()) return;
+    const name = pasteName.trim() || `paste-${uploadedFiles.length + 1}.txt`;
+    setUploadedFiles((prev) => {
+      const map = new Map(prev.map((f) => [f.name, f]));
+      map.set(name, { name, rawText: pasteText });
+      const next = Array.from(map.values());
+      setLinkPool(extractLinkPool(next));
+      return next;
+    });
+    setProcessedFiles([]);
+    setAppState('idle');
+    setError('');
+    setStatusMessage('');
+    setPasteText('');
+    setPasteOpen(false);
+  }, [pasteText, pasteName, uploadedFiles.length]);
 
   // ── drag & drop ──
 
@@ -313,6 +345,49 @@ export default function App() {
               <p className="text-xs text-gray-400 mt-0.5">.txt .md .text .markdown</p>
             )}
           </div>
+
+          {/* Paste text button + inline panel */}
+          {!pasteOpen ? (
+            <button
+              onClick={openPaste}
+              className="flex-shrink-0 mx-3 mb-2 flex items-center gap-1.5 text-xs text-gray-500 hover:text-indigo-600 transition-colors"
+            >
+              <ClipboardPaste className="w-3.5 h-3.5" />
+              Paste text
+            </button>
+          ) : (
+            <div className="flex-shrink-0 mx-3 mb-2 rounded-lg border border-gray-200 bg-white overflow-hidden">
+              <textarea
+                autoFocus
+                value={pasteText}
+                onChange={(e) => setPasteText(e.target.value)}
+                placeholder="Paste your text here…"
+                className="w-full h-28 px-3 py-2 text-xs font-mono text-gray-700 resize-none focus:outline-none border-b border-gray-200"
+                spellCheck={false}
+              />
+              <div className="px-3 py-2 flex items-center gap-2">
+                <input
+                  value={pasteName}
+                  onChange={(e) => setPasteName(e.target.value)}
+                  placeholder="filename.txt"
+                  className="flex-1 min-w-0 text-xs px-2 py-1 border border-gray-200 rounded focus:outline-none focus:border-indigo-400 text-gray-700"
+                />
+                <button
+                  onClick={() => setPasteOpen(false)}
+                  className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={addPastedFile}
+                  disabled={!pasteText.trim()}
+                  className="text-xs px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white rounded transition-colors"
+                >
+                  Add
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* File list */}
           {hasFiles && (
