@@ -11,41 +11,38 @@
       "maxDuration": 10
     }
   },
-  "routes": [
-    { "src": "/api/feedback", "dest": "/api/feedback.ts" },
+  "rewrites": [
+    { "source": "/bulk-setup/assets/:path+", "destination": "/apps/bulk-setup/dist/assets/:path+" },
+    { "source": "/bulk-setup/scrunch-logo.svg", "destination": "/apps/bulk-setup/dist/scrunch-logo.svg" },
+    { "source": "/bulk-setup/:path*", "destination": "/apps/bulk-setup/dist/index.html" },
+    { "source": "/bulk-setup", "destination": "/apps/bulk-setup/dist/index.html" },
 
-    { "src": "/bulk-setup/assets/(.*)", "dest": "/apps/bulk-setup/dist/assets/$1" },
-    { "src": "/bulk-setup/scrunch-logo.svg", "dest": "/apps/bulk-setup/dist/scrunch-logo.svg" },
-    { "src": "/bulk-setup/(.*)", "dest": "/apps/bulk-setup/dist/index.html" },
-    { "src": "/bulk-setup", "dest": "/apps/bulk-setup/dist/index.html" },
+    { "source": "/export/assets/:path+", "destination": "/apps/scrunch-api-exporter/dist/assets/:path+" },
+    { "source": "/export/scrunch-logo.svg", "destination": "/apps/scrunch-api-exporter/dist/scrunch-logo.svg" },
+    { "source": "/export/:path*", "destination": "/apps/scrunch-api-exporter/dist/index.html" },
+    { "source": "/export", "destination": "/apps/scrunch-api-exporter/dist/index.html" },
 
-    { "src": "/export/assets/(.*)", "dest": "/apps/scrunch-api-exporter/dist/assets/$1" },
-    { "src": "/export/scrunch-logo.svg", "dest": "/apps/scrunch-api-exporter/dist/scrunch-logo.svg" },
-    { "src": "/export/(.*)", "dest": "/apps/scrunch-api-exporter/dist/index.html" },
-    { "src": "/export", "dest": "/apps/scrunch-api-exporter/dist/index.html" },
+    { "source": "/slides/assets/:path+", "destination": "/apps/google-slides-exporter/dist/assets/:path+" },
+    { "source": "/slides/scrunch-logo.svg", "destination": "/apps/google-slides-exporter/dist/scrunch-logo.svg" },
+    { "source": "/slides/:path*", "destination": "/apps/google-slides-exporter/dist/index.html" },
+    { "source": "/slides", "destination": "/apps/google-slides-exporter/dist/index.html" },
 
-    { "src": "/slides/assets/(.*)", "dest": "/apps/google-slides-exporter/dist/assets/$1" },
-    { "src": "/slides/scrunch-logo.svg", "dest": "/apps/google-slides-exporter/dist/scrunch-logo.svg" },
-    { "src": "/slides/(.*)", "dest": "/apps/google-slides-exporter/dist/index.html" },
-    { "src": "/slides", "dest": "/apps/google-slides-exporter/dist/index.html" },
+    { "source": "/analyze-v2/assets/:path+", "destination": "/apps/response-analyzer-v2/dist/assets/:path+" },
+    { "source": "/analyze-v2/scrunch-logo.svg", "destination": "/apps/response-analyzer-v2/dist/scrunch-logo.svg" },
+    { "source": "/analyze-v2/:path*", "destination": "/apps/response-analyzer-v2/dist/index.html" },
+    { "source": "/analyze-v2", "destination": "/apps/response-analyzer-v2/dist/index.html" },
 
-    { "src": "/analyze-v2/assets/(.*)", "dest": "/apps/response-analyzer-v2/dist/assets/$1" },
-    { "src": "/analyze-v2/scrunch-logo.svg", "dest": "/apps/response-analyzer-v2/dist/scrunch-logo.svg" },
-    { "src": "/analyze-v2/(.*)", "dest": "/apps/response-analyzer-v2/dist/index.html" },
-    { "src": "/analyze-v2", "dest": "/apps/response-analyzer-v2/dist/index.html" },
+    { "source": "/analyze/assets/:path+", "destination": "/apps/response-analyzer/dist/assets/:path+" },
+    { "source": "/analyze/scrunch-logo.svg", "destination": "/apps/response-analyzer/dist/scrunch-logo.svg" },
+    { "source": "/analyze/:path*", "destination": "/apps/response-analyzer/dist/index.html" },
+    { "source": "/analyze", "destination": "/apps/response-analyzer/dist/index.html" },
 
-    { "src": "/analyze/assets/(.*)", "dest": "/apps/response-analyzer/dist/assets/$1" },
-    { "src": "/analyze/scrunch-logo.svg", "dest": "/apps/response-analyzer/dist/scrunch-logo.svg" },
-    { "src": "/analyze/(.*)", "dest": "/apps/response-analyzer/dist/index.html" },
-    { "src": "/analyze", "dest": "/apps/response-analyzer/dist/index.html" },
+    { "source": "/axp/assets/:path+", "destination": "/apps/axp-converter/dist/assets/:path+" },
+    { "source": "/axp/scrunch-logo.svg", "destination": "/apps/axp-converter/dist/scrunch-logo.svg" },
+    { "source": "/axp/:path*", "destination": "/apps/axp-converter/dist/index.html" },
+    { "source": "/axp", "destination": "/apps/axp-converter/dist/index.html" },
 
-    { "src": "/axp/api/claude", "dest": "/api/axp-claude.ts" },
-    { "src": "/axp/assets/(.*)", "dest": "/apps/axp-converter/dist/assets/$1" },
-    { "src": "/axp/scrunch-logo.svg", "dest": "/apps/axp-converter/dist/scrunch-logo.svg" },
-    { "src": "/axp/(.*)", "dest": "/apps/axp-converter/dist/index.html" },
-    { "src": "/axp", "dest": "/apps/axp-converter/dist/index.html" },
-
-    { "src": "/scrunch-logo.svg", "dest": "/apps/home/scrunch-logo.svg" },
-    { "src": "/(.*)", "dest": "/apps/home/index.html" }
+    { "source": "/scrunch-logo.svg", "destination": "/apps/home/scrunch-logo.svg" },
+    { "source": "/:path*", "destination": "/apps/home/index.html" }
   ]
 }
