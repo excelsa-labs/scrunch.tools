@@ -5,9 +5,15 @@
     "api/axp-claude.ts": {
       "memory": 256,
       "maxDuration": 30
+    },
+    "api/feedback.ts": {
+      "memory": 128,
+      "maxDuration": 10
     }
   },
   "routes": [
+    { "src": "/api/feedback", "dest": "/api/feedback.ts" },
+
     { "src": "/bulk-setup/assets/(.*)", "dest": "/apps/bulk-setup/dist/assets/$1" },
     { "src": "/bulk-setup/scrunch-logo.svg", "dest": "/apps/bulk-setup/dist/scrunch-logo.svg" },
     { "src": "/bulk-setup/(.*)", "dest": "/apps/bulk-setup/dist/index.html" },

@@ -164,7 +164,186 @@
             </div>
           </a>
         </div>
+
+        <!-- Feedback Section -->
+        <div id="feedback-widget" class="max-w-2xl mx-auto mt-14 mb-4">
+
+          <!-- State 1: Invitation -->
+          <div id="fb-prompt" class="bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-200 px-6 py-7 text-center transition-all duration-300">
+            <p class="text-gray-800 text-base font-medium mb-1">
+              We're always exploring new tools.
+            </p>
+            <p class="text-gray-500 text-sm mb-5">
+              What would help you most?
+            </p>
+            <div class="flex justify-center gap-3">
+              <button
+                onclick="openFeedback('idea')"
+                class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 shadow-sm hover:shadow"
+              >
+                <span>💡</span> I have an idea
+              </button>
+              <button
+                onclick="openFeedback('improve')"
+                class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700 transition-all duration-200 shadow-sm hover:shadow"
+              >
+                <span>🛠</span> Something could be better
+              </button>
+            </div>
+          </div>
+
+          <!-- State 2: Form -->
+          <div id="fb-form" class="bg-white rounded-xl border border-gray-200 px-6 py-6 transition-all duration-300" style="display:none; opacity:0;">
+            <p id="fb-form-prompt" class="text-gray-800 font-medium text-sm mb-3"></p>
+            <textarea
+              id="fb-text"
+              rows="3"
+              class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-300 resize-none transition-all duration-200"
+              placeholder="Tell us what's on your mind..."
+            ></textarea>
+            <div class="flex justify-between items-center mt-3">
+              <button
+                onclick="closeFeedback()"
+                class="text-gray-400 text-sm hover:text-gray-600 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                id="fb-send"
+                onclick="submitFeedback()"
+                disabled
+                class="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Send
+              </button>
+            </div>
+          </div>
+
+          <!-- State 3: Thank You -->
+          <div id="fb-thanks" class="bg-gradient-to-br from-green-50 to-white rounded-xl border border-green-200 px-6 py-7 text-center transition-all duration-300" style="display:none; opacity:0;">
+            <p class="text-green-600 text-lg mb-1">✓</p>
+            <p id="fb-thanks-msg" class="text-gray-700 text-sm leading-relaxed"></p>
+          </div>
+
+          <!-- State 4: Settled (persistent after thank-you) -->
+          <div id="fb-settled" class="text-center py-4 transition-all duration-300" style="display:none; opacity:0;">
+            <p class="text-gray-400 text-xs">✓ Shared with the team</p>
+          </div>
+
+        </div>
+
       </div>
     </main>
+
+    <script>
+      (function () {
+        const COOLDOWN_MS = 60 * 60 * 1000; // 1 hour
+        const LS_KEY = 'scrunch_feedback_ts';
+
+        const prompts = {
+          idea: 'What tool or feature would you find useful?',
+          improve: 'What would make these tools work better for you?',
+        };
+
+        let feedbackType = '';
+
+        // Check cooldown on load
+        const lastSubmit = parseInt(localStorage.getItem(LS_KEY) || '0', 10);
+        if (Date.now() - lastSubmit < COOLDOWN_MS) {
+          showSettled();
+        }
+
+        function showSettled() {
+          hide('fb-prompt');
+          hide('fb-form');
+          hide('fb-thanks');
+          show('fb-settled');
+        }
+
+        function show(id) {
+          const el = document.getElementById(id);
+          el.style.display = '';
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => { el.style.opacity = '1'; });
+          });
+        }
+
+        function hide(id) {
+          const el = document.getElementById(id);
+          el.style.opacity = '0';
+          setTimeout(() => { el.style.display = 'none'; }, 300);
+        }
+
+        function hideImmediate(id) {
+          const el = document.getElementById(id);
+          el.style.opacity = '0';
+          el.style.display = 'none';
+        }
+
+        window.openFeedback = function (type) {
+          feedbackType = type;
+          document.getElementById('fb-form-prompt').textContent = prompts[type];
+          document.getElementById('fb-text').value = '';
+          document.getElementById('fb-send').disabled = true;
+          hide('fb-prompt');
+          setTimeout(() => {
+            show('fb-form');
+            document.getElementById('fb-text').focus();
+          }, 320);
+        };
+
+        window.closeFeedback = function () {
+          hide('fb-form');
+          setTimeout(() => { show('fb-prompt'); }, 320);
+        };
+
+        // Enable Send when there's content
+        document.getElementById('fb-text').addEventListener('input', function () {
+          document.getElementById('fb-send').disabled = this.value.trim().length === 0;
+        });
+
+        window.submitFeedback = async function () {
+          const message = document.getElementById('fb-text').value.trim();
+          if (!message) return;
+
+          const btn = document.getElementById('fb-send');
+          btn.disabled = true;
+          btn.textContent = 'Sending...';
+
+          // Pick thank-you message based on detail level
+          const isDetailed = message.length >= 100;
+          const thanksMsg = isDetailed
+            ? "Thanks for taking the time to write this out — feedback like this is incredibly helpful. We review these directly when planning what to build next."
+            : "Thanks for sharing this. We review every suggestion as a team.";
+          document.getElementById('fb-thanks-msg').textContent = thanksMsg;
+
+          // Fire and forget — show thanks regardless of API result
+          try {
+            await fetch('/api/feedback', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                type: feedbackType,
+                message: message,
+                source: window.location.href,
+              }),
+            });
+          } catch (err) {
+            console.warn('Feedback submission failed:', err);
+          }
+
+          localStorage.setItem(LS_KEY, String(Date.now()));
+
+          hide('fb-form');
+          setTimeout(() => { show('fb-thanks'); }, 320);
+
+          // Settle after 4 seconds
+          setTimeout(() => {
+            hide('fb-thanks');
+            setTimeout(() => { show('fb-settled'); }, 320);
+          }, 4000);
+        };
+      })();
+    </script>
   </body>
 </html>
