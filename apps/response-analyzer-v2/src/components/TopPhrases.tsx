@@ -315,7 +315,7 @@ export function TopPhrases({ data, onViewResponses }: TopPhrasesProps) {
                         {!pivotDimension && expandedDetail && (
                           breakdownViewMode === 'chart' ? (
                             <BreakdownBarChart
-                              data={expandedDetail.perPrompt.map(p => ({
+                              data={expandedDetail.perPrompt.slice(0, 10).map(p => ({
                                 label: p.promptText,
                                 percent: p.percent,
                                 count: p.containsCount,
@@ -335,7 +335,7 @@ export function TopPhrases({ data, onViewResponses }: TopPhrasesProps) {
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {expandedDetail.perPrompt.map(p => (
+                                  {expandedDetail.perPrompt.slice(0, 10).map(p => (
                                     <tr key={p.promptKey} className="border-t border-gray-200 hover:bg-gray-100 group">
                                       <td className="py-1 pr-3 text-gray-700 max-w-xs truncate" title={p.promptText}>
                                         {p.promptText.length > 80 ? p.promptText.slice(0, 80) + '...' : p.promptText}
@@ -366,7 +366,7 @@ export function TopPhrases({ data, onViewResponses }: TopPhrasesProps) {
                         {pivotDimension && pivotData && (
                           breakdownViewMode === 'chart' ? (
                             <BreakdownBarChart
-                              data={pivotData.map(d => ({
+                              data={pivotData.slice(0, 10).map(d => ({
                                 label: d.groupValue,
                                 percent: d.percent,
                                 count: d.containsCount,
@@ -386,7 +386,7 @@ export function TopPhrases({ data, onViewResponses }: TopPhrasesProps) {
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {pivotData.map(d => (
+                                  {pivotData.slice(0, 10).map(d => (
                                     <tr key={d.groupValue} className="border-t border-gray-200 hover:bg-gray-100 group">
                                       <td className="py-1 pr-3 text-gray-700">{d.groupValue}</td>
                                       <td className="py-1 px-2 text-right text-gray-600">{d.containsCount}</td>
