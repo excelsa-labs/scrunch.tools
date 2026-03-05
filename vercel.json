@@ -23,6 +23,11 @@
     { "src": "/slides/(.*)", "dest": "/apps/google-slides-exporter/dist/index.html" },
     { "src": "/slides", "dest": "/apps/google-slides-exporter/dist/index.html" },
 
+    { "src": "/analyze-v2/assets/(.*)", "dest": "/apps/response-analyzer-v2/dist/assets/$1" },
+    { "src": "/analyze-v2/scrunch-logo.svg", "dest": "/apps/response-analyzer-v2/dist/scrunch-logo.svg" },
+    { "src": "/analyze-v2/(.*)", "dest": "/apps/response-analyzer-v2/dist/index.html" },
+    { "src": "/analyze-v2", "dest": "/apps/response-analyzer-v2/dist/index.html" },
+
     { "src": "/analyze/assets/(.*)", "dest": "/apps/response-analyzer/dist/assets/$1" },
     { "src": "/analyze/scrunch-logo.svg", "dest": "/apps/response-analyzer/dist/scrunch-logo.svg" },
     { "src": "/analyze/(.*)", "dest": "/apps/response-analyzer/dist/index.html" },
