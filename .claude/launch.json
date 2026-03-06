@@ -16,6 +16,13 @@
       "cwd": "apps/scrunch-api-exporter"
     },
     {
+      "name": "response-analyzer",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--port", "5176"],
+      "port": 5176,
+      "cwd": "apps/response-analyzer"
+    },
+    {
       "name": "axp-converter",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev", "--", "--port", "5175"],

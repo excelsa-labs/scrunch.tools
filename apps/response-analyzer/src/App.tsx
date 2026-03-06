@@ -28,11 +28,20 @@ function App() {
   const hasData = data.length > 0;
 
   const availableFilters = useMemo(() => {
-    if (!hasData) return { platforms: [], stages: [], countries: [], prompts: [] };
+    if (!hasData) return { platforms: [], stages: [], countries: [], prompts: [] as { key: string; label: string }[] };
     const platforms = [...new Set(data.map(r => r.platform).filter(Boolean))].sort();
     const stages = [...new Set(data.map(r => r.stage).filter(Boolean))].sort();
     const countries = [...new Set(data.map(r => r.country).filter(Boolean))].sort();
-    const prompts = [...new Set(data.map(r => r.prompt_id || r.prompt).filter(Boolean))].sort();
+    // Build a deduped map: key = prompt_id (or prompt text as fallback), label = prompt text
+    const promptMap = new Map<string, string>();
+    data.forEach(r => {
+      const key = r.prompt_id || r.prompt;
+      const label = r.prompt || r.prompt_id;
+      if (key) promptMap.set(key, label);
+    });
+    const prompts = [...promptMap.entries()]
+      .map(([key, label]) => ({ key, label }))
+      .sort((a, b) => a.label.localeCompare(b.label));
     return { platforms, stages, countries, prompts };
   }, [data, hasData]);
 
