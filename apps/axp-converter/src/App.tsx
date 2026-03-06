@@ -46,6 +46,30 @@ function isHtmlFile(name: string): boolean {
   return l.endsWith('.html') || l.endsWith('.htm');
 }
 
+function countWords(text: string): number {
+  return text.trim() ? text.trim().split(/\s+/).length : 0;
+}
+
+function countTokens(text: string): number {
+  // Rough approximation: ~4 chars per token
+  return text.length ? Math.ceil(text.length / 4) : 0;
+}
+
+function StatPills({ text }: { text: string }) {
+  const words = countWords(text);
+  const tokens = countTokens(text);
+  return (
+    <div className="flex items-center gap-1.5">
+      <span className="text-xs text-gray-400 bg-gray-100 rounded-full px-2 py-0.5">
+        {words.toLocaleString()}w
+      </span>
+      <span className="text-xs text-gray-400 bg-gray-100 rounded-full px-2 py-0.5">
+        ~{tokens.toLocaleString()}t
+      </span>
+    </div>
+  );
+}
+
 function chooseConverter(file: UploadedFile): string {
   const l = file.name.toLowerCase();
   // .md/.markdown files always use the text heuristic converter
@@ -466,6 +490,7 @@ export default function App() {
                 <span className="ml-2 normal-case font-normal text-gray-400">{selectedUploaded.name}</span>
               )}
             </span>
+            {selectedUploaded && <StatPills text={selectedUploaded.rawText} />}
           </div>
           {selectedUploaded ? (
             <textarea
@@ -494,6 +519,7 @@ export default function App() {
             </span>
             {hasResults && (
               <div className="flex items-center gap-2">
+                {selectedProcessed && <StatPills text={selectedProcessed.finalMarkdown} />}
                 <button
                   onClick={handleCopy}
                   className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-600 hover:text-gray-900 border border-gray-200 hover:border-gray-300 rounded-lg transition-all"
