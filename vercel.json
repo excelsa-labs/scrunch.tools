@@ -34,6 +34,10 @@
     { "src": "/axp/scrunch-logo.svg", "dest": "/apps/axp-converter/dist/scrunch-logo.svg" },
     { "src": "/axp(.*)", "dest": "/apps/axp-converter/dist/index.html" },
 
+    { "src": "/topic-optimizer/assets/(.*)", "dest": "/apps/topic-optimizer/dist/assets/$1" },
+    { "src": "/topic-optimizer/scrunch-logo.svg", "dest": "/apps/topic-optimizer/dist/scrunch-logo.svg" },
+    { "src": "/topic-optimizer(.*)", "dest": "/apps/topic-optimizer/dist/index.html" },
+
     { "src": "/scrunch-logo.svg", "dest": "/apps/home/scrunch-logo.svg" },
     { "src": "/(.*)", "dest": "/apps/home/index.html" }
   ]
