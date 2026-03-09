@@ -177,8 +177,9 @@ export async function fetchAndFlattenData(params: ExportParams): Promise<Record<
         offset,
       });
 
-      // Use the API's total count for accurate progress (captured on first page)
-      if (total !== undefined && knownTotal === undefined) {
+      // Only trust total as a dataset total if it's larger than items returned.
+      // When total === items.length, the API is likely returning a page count, not the dataset total.
+      if (total !== undefined && knownTotal === undefined && total > items.length) {
         knownTotal = total;
       }
 
