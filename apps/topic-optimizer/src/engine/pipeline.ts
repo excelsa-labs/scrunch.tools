@@ -5,7 +5,7 @@ import { fullParetoEnvelope } from './pareto';
 import { greedyForwardCurve } from './greedyCurve';
 import { DEFAULT_STRATEGIES } from './strategies';
 import { getBaselineMetrics, findBestPointForConstraint, replayTrajectoryCuts } from './selection';
-import { PromptSource, Constraint, TopicResult, ManifestRow } from './types';
+import { PromptSource, Constraint, TopicResult, ManifestRow, CoveringPrompt } from './types';
 
 export interface TopicGroup {
   topicId: string;
@@ -67,38 +67,51 @@ function runOneGroup(group: TopicGroup, constraint: Constraint): TopicResult {
   const cutSet = new Set(cutIndices);
   const keptIndices = promptSources.map((_, i) => i).filter(i => !cutSet.has(i));
 
-  // For each CUT prompt, find the KEPT prompt with the most shared URLs
-  const cutUrlSets = new Map<number, Set<string>>();
-  for (const ci of cutIndices) {
-    cutUrlSets.set(ci, new Set(promptSources[ci].sources));
-  }
+  // For each CUT prompt, greedily find KEPT prompts that cover its URLs
   const keptUrlSets = keptIndices.map(ki => ({
     idx: ki,
     urls: new Set(promptSources[ki].sources),
   }));
 
-  const closestKept = new Map<number, { keptIdx: number; shared: number }>();
+  const coverageMap = new Map<number, { covering: CoveringPrompt[]; uncovered: number }>();
   for (const ci of cutIndices) {
-    const cutUrls = cutUrlSets.get(ci)!;
-    let bestIdx = -1;
-    let bestShared = -1;
-    for (const { idx: ki, urls: keptUrls } of keptUrlSets) {
-      let shared = 0;
-      for (const url of cutUrls) {
-        if (keptUrls.has(url)) shared++;
+    const remaining = new Set(promptSources[ci].sources);
+    const covering: CoveringPrompt[] = [];
+
+    while (remaining.size > 0) {
+      // Find KEPT prompt covering the most remaining URLs
+      let bestIdx = -1;
+      let bestShared = 0;
+      for (const { idx: ki, urls: keptUrls } of keptUrlSets) {
+        let shared = 0;
+        for (const url of remaining) {
+          if (keptUrls.has(url)) shared++;
+        }
+        if (shared > bestShared) {
+          bestShared = shared;
+          bestIdx = ki;
+        }
       }
-      if (shared > bestShared) {
-        bestShared = shared;
-        bestIdx = ki;
+
+      if (bestIdx < 0 || bestShared === 0) break;
+
+      // Remove covered URLs and record
+      const keptUrls = keptUrlSets.find(k => k.idx === bestIdx)!.urls;
+      for (const url of Array.from(remaining)) {
+        if (keptUrls.has(url)) remaining.delete(url);
       }
+      covering.push({
+        promptId: promptSources[bestIdx].promptId,
+        promptText: promptSources[bestIdx].promptText,
+        sharedUrls: bestShared,
+      });
     }
-    if (bestIdx >= 0) {
-      closestKept.set(ci, { keptIdx: bestIdx, shared: bestShared });
-    }
+
+    coverageMap.set(ci, { covering, uncovered: remaining.size });
   }
 
   const manifest: ManifestRow[] = promptSources.map((ps, i) => {
-    const overlap = closestKept.get(i);
+    const coverage = coverageMap.get(i);
     return {
       topicId,
       topicName,
@@ -106,9 +119,8 @@ function runOneGroup(group: TopicGroup, constraint: Constraint): TopicResult {
       promptText: ps.promptText,
       status: cutSet.has(i) ? 'CUT' as const : 'KEPT' as const,
       nUrls: ps.sources.length,
-      closestKeptId: overlap ? promptSources[overlap.keptIdx].promptId : null,
-      closestKeptText: overlap ? promptSources[overlap.keptIdx].promptText : null,
-      sharedUrls: overlap ? overlap.shared : null,
+      coveringPrompts: coverage?.covering ?? [],
+      uncoveredUrls: coverage?.uncovered ?? 0,
     };
   });
 

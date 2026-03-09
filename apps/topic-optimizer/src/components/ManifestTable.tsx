@@ -113,13 +113,20 @@ export function ManifestTable({ manifest }: ManifestTableProps) {
                 <td className="px-3 py-2 text-gray-600 font-mono text-xs">{row.promptId}</td>
                 <td className="px-3 py-2 text-gray-900 max-w-md truncate">{row.promptText}</td>
                 <td className="px-3 py-2 text-right text-gray-600">{row.nUrls}</td>
-                <td className="px-3 py-2 text-gray-500 text-xs max-w-xs">
-                  {row.status === 'CUT' && row.closestKeptId ? (
-                    <span title={row.closestKeptText ?? ''}>
-                      <span className="font-mono">{row.closestKeptId}</span>
-                      <span className="text-violet-600 ml-1">({row.sharedUrls} shared)</span>
-                      <span className="block text-gray-400 truncate">{row.closestKeptText}</span>
-                    </span>
+                <td className="px-3 py-2 text-xs max-w-sm">
+                  {row.status === 'CUT' && row.coveringPrompts.length > 0 ? (
+                    <div className="space-y-1">
+                      {row.coveringPrompts.map((cp, j) => (
+                        <div key={j} className="text-gray-500" title={cp.promptText}>
+                          <span className="text-violet-600 font-medium">{cp.sharedUrls} URL{cp.sharedUrls !== 1 ? 's' : ''}</span>
+                          {' '}from <span className="font-mono">{cp.promptId}</span>
+                          <span className="text-gray-400 ml-1 truncate inline-block max-w-[200px] align-bottom">{cp.promptText}</span>
+                        </div>
+                      ))}
+                      {row.uncoveredUrls > 0 && (
+                        <div className="text-orange-500">{row.uncoveredUrls} URL{row.uncoveredUrls !== 1 ? 's' : ''} not covered by any kept prompt</div>
+                      )}
+                    </div>
                   ) : row.status === 'CUT' ? (
                     <span className="text-gray-300">—</span>
                   ) : null}

@@ -44,6 +44,12 @@ export interface Constraint {
   value: number;
 }
 
+export interface CoveringPrompt {
+  promptId: string;
+  promptText: string;
+  sharedUrls: number;
+}
+
 export interface ManifestRow {
   topicId: string;
   topicName: string;
@@ -51,9 +57,8 @@ export interface ManifestRow {
   promptText: string;
   status: 'KEPT' | 'CUT';
   nUrls: number;
-  closestKeptId: string | null;
-  closestKeptText: string | null;
-  sharedUrls: number | null;
+  coveringPrompts: CoveringPrompt[];
+  uncoveredUrls: number;
 }
 
 export interface TopicResult {

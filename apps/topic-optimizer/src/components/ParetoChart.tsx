@@ -92,9 +92,10 @@ export function ParetoChart({ paretoEnvelope, selectedPoint }: ParetoChartProps)
 
   return (
     <div>
-      <h4 className="text-sm font-medium text-gray-700 mb-0.5">Strategy Comparison (3D)</h4>
+      <h4 className="text-sm font-medium text-gray-700 mb-0.5">Pareto Frontier: Budget vs Coverage vs Resilience</h4>
       <p className="text-xs text-gray-400 mb-2">
-        Each point is a strategy at a given budget. Rotate to explore the tradeoffs between prompt count, coverage, and resilience.
+        Each point is the best achievable coverage and resilience for a given prompt budget — no other approach does better on both.
+        Rotate to explore.
       </p>
       <Plot
         data={traces}

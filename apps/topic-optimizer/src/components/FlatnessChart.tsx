@@ -14,27 +14,31 @@ export function FlatnessChart({ curve, totalUrls }: FlatnessChartProps) {
   const data = curve.map(pt => ({
     k: pt.k,
     coverage: totalUrls > 0 ? pt.cK / totalUrls : 0,
-    marginalGain: pt.deltaK,
+    newUrls: pt.deltaK,
   }));
 
   return (
     <div>
-      <h4 className="text-sm font-medium text-gray-700 mb-2">Greedy Coverage Curve</h4>
+      <h4 className="text-sm font-medium text-gray-700 mb-0.5">Greedy Coverage Curve</h4>
+      <p className="text-xs text-gray-400 mb-2">
+        Prompts added one at a time in order of maximum new URL contribution.
+      </p>
       <ResponsiveContainer width="100%" height={280}>
-        <ComposedChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+        <ComposedChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 20 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-          <XAxis dataKey="k" label={{ value: 'Prompts (greedy order)', position: 'bottom', offset: -2 }} tick={{ fontSize: 11 }} />
+          <XAxis dataKey="k" tick={{ fontSize: 11 }} label={{ value: 'Prompts (greedy order)', position: 'bottom', offset: 2 }} />
           <YAxis yAxisId="left" domain={[0, 1]} tickFormatter={v => `${(v * 100).toFixed(0)}%`} tick={{ fontSize: 11 }} />
           <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11 }} />
           <Tooltip
             formatter={(value: number, name: string) => [
-              name === 'coverage' ? `${(value * 100).toFixed(1)}%` : value,
-              name === 'coverage' ? 'Coverage' : 'Marginal Gain',
+              name === 'Total Coverage' ? `${(value * 100).toFixed(1)}%` : `${value} URLs`,
+              name,
             ]}
+            labelFormatter={(k: number) => `Prompt #${k}`}
           />
-          <Legend wrapperStyle={{ fontSize: 11 }} />
-          <Bar yAxisId="right" dataKey="marginalGain" fill="#c4b5fd" opacity={0.6} name="Marginal Gain" />
-          <Line yAxisId="left" type="monotone" dataKey="coverage" stroke="#7c3aed" strokeWidth={2} dot={false} name="Coverage %" />
+          <Legend wrapperStyle={{ fontSize: 11 }} verticalAlign="top" />
+          <Bar yAxisId="right" dataKey="newUrls" fill="#c4b5fd" opacity={0.6} name="New URLs Added" />
+          <Line yAxisId="left" type="monotone" dataKey="coverage" stroke="#7c3aed" strokeWidth={2} dot={false} name="Total Coverage" />
         </ComposedChart>
       </ResponsiveContainer>
     </div>

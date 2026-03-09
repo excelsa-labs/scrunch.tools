@@ -195,7 +195,7 @@ function App() {
               </div>
             </div>
             <div className="bg-white rounded-lg border border-gray-200 p-5">
-              <TrajectoryChart trajectories={selectedResult.trajectories} selectedBudget={selectedResult.selectedBudget} />
+              <TrajectoryChart trajectories={selectedResult.trajectories} selectedBudget={selectedResult.selectedBudget} selectedStrategy={selectedResult.selectedStrategy} />
             </div>
           </div>
         )}

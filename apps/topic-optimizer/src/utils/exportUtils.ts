@@ -1,11 +1,14 @@
 import { TopicResult } from '../engine/types';
 
 export function exportManifestCSV(results: TopicResult[]): string {
-  const headers = ['topic_id', 'topic_name', 'prompt_id', 'prompt_text', 'status', 'n_urls', 'closest_kept_id', 'closest_kept_text', 'shared_urls'];
+  const headers = ['topic_id', 'topic_name', 'prompt_id', 'prompt_text', 'status', 'n_urls', 'covered_by', 'uncovered_urls'];
   const rows = [headers.join(',')];
 
   for (const result of results) {
     for (const row of result.manifest) {
+      const coveredBy = row.coveringPrompts
+        .map(cp => `${cp.promptId}(${cp.sharedUrls})`)
+        .join('; ');
       rows.push([
         csvEscape(row.topicId),
         csvEscape(row.topicName),
@@ -13,9 +16,8 @@ export function exportManifestCSV(results: TopicResult[]): string {
         csvEscape(row.promptText),
         row.status,
         String(row.nUrls),
-        csvEscape(row.closestKeptId ?? ''),
-        csvEscape(row.closestKeptText ?? ''),
-        row.sharedUrls !== null ? String(row.sharedUrls) : '',
+        csvEscape(coveredBy),
+        String(row.uncoveredUrls),
       ].join(','));
     }
   }
