@@ -37,9 +37,7 @@ function App() {
   const [selectedFields, setSelectedFields] = useState<string[]>([]);
   const [fetchAll, setFetchAll] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState(0);
   const [progressLoaded, setProgressLoaded] = useState(0);
-  const [progressTotal, setProgressTotal] = useState(0);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [showApiCall, setShowApiCall] = useState(false);
@@ -169,9 +167,7 @@ function App() {
   };
 
   const performExport = async () => {
-    setProgress(0);
     setProgressLoaded(0);
-    setProgressTotal(0);
     setLoading(true);
 
     try {
@@ -185,10 +181,8 @@ function App() {
         fields: activeTab === 'query' ? selectedFields : undefined,
         filterPlatforms,
         filterStages,
-        onProgress: (loaded, total) => {
+        onProgress: (loaded) => {
           setProgressLoaded(loaded);
-          setProgressTotal(total);
-          setProgress(total > 0 ? Math.min(Math.round((loaded / total) * 100), 100) : 0);
         },
       });
 
@@ -216,7 +210,6 @@ function App() {
       document.body.removeChild(link);
 
       setSuccess(`Successfully exported ${data.length} records`);
-      setProgress(100);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -564,22 +557,14 @@ function App() {
 
               {loading && (
                 <div className="border-t pt-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-medium text-gray-700">
-                      Exporting...
-                      {progressTotal > 0 && (
-                        <span className="text-gray-500 ml-2">
-                          {progressLoaded.toLocaleString()} / {progressTotal.toLocaleString()} rows
-                        </span>
-                      )}
-                    </p>
-                    <span className="text-sm font-semibold text-blue-600">{progress}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${progress}%` }}
-                    ></div>
+                  <p className="text-sm font-medium text-gray-700 mb-2">
+                    Exporting...
+                    {progressLoaded > 0 && (
+                      <span className="text-gray-500 ml-2">{progressLoaded.toLocaleString()} rows</span>
+                    )}
+                  </p>
+                  <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                    <div className="bg-blue-600 h-2 rounded-full animate-progress-slide" />
                   </div>
                 </div>
               )}
