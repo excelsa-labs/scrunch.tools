@@ -11,6 +11,7 @@ A collection of internal tools for working with Scrunch data and the Scrunch API
 | **Slides Generator** | `apps/google-slides-exporter` | Generate Google Slides reports from Scrunch API data |
 | **Bulk Setup** | `apps/bulk-setup` | Configure brands and prompts in bulk |
 | **Response Analyzer** | `apps/response-analyzer` | Analyze phrase frequency and messaging patterns in API responses |
+| **Topic Optimizer** | `apps/topic-optimizer` | Optimize prompt selections by analyzing coverage and resilience constraints |
 
 ## Development
 
