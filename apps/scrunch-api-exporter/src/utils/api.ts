@@ -100,9 +100,14 @@ async function fetchPageWithRetry(
     const timeoutId = setTimeout(() => controller.abort(), 60000);
 
     try {
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
       const response = await fetch(proxyUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseKey}`,
+          'apikey': supabaseKey,
+        },
         body: JSON.stringify(body),
         signal: controller.signal,
       });
@@ -282,11 +287,14 @@ export function generateCSV(data: Record<string, unknown>[], selectedColumns?: s
 
 export async function fetchBrands(apiKey: string): Promise<Brand[]> {
   const proxyUrl = 'https://qnbxemqvfzzgkxchtbhb.supabase.co/functions/v1/scrunch-proxy';
+  const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
   const response = await fetch(proxyUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'Authorization': `Bearer ${supabaseKey}`,
+      'apikey': supabaseKey,
     },
     body: JSON.stringify({
       apiKey,

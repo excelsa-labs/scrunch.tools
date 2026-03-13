@@ -238,9 +238,12 @@ function App() {
       <main className="max-w-4xl mx-auto px-6 py-8">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           {/* Header */}
-          <div className="bg-gradient-to-r from-ocean-300 to-ocean-400 px-8 py-6 text-white">
-            <h1 className="text-2xl font-bold mb-2">Create Google Slides Reports</h1>
-            <p className="text-ocean-100 text-sm">
+          <div className="px-8 py-6" style={{ backgroundColor: '#e8ffb5' }}>
+            <div className="flex items-center gap-3 mb-3">
+              <FileText className="w-8 h-8 text-gray-800" />
+              <h1 className="text-3xl font-bold text-gray-800">Slides Generator</h1>
+            </div>
+            <p className="text-xs text-gray-600">
               Generate branded presentations from your Scrunch API data
             </p>
           </div>
@@ -249,13 +252,13 @@ function App() {
           <div className="p-8 space-y-8">
             {/* API Configuration */}
             <section className="space-y-4">
-              <h2 className="text-lg font-semibold text-gray-900 border-b pb-2">
+              <h2 className="text-lg font-semibold text-gray-700 border-b pb-2">
                 API Configuration
               </h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    Scrunch API Key
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Scrunch API Key <span className="text-red-500">*</span>
                   </label>
                   <div className="flex gap-2">
                     <input
@@ -284,7 +287,7 @@ function App() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Brand
                   </label>
                   {brands.length > 0 ? (
@@ -318,7 +321,7 @@ function App() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Start Date
                     </label>
                     <input
@@ -329,7 +332,7 @@ function App() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
                       End Date
                     </label>
                     <input
@@ -483,7 +486,7 @@ function App() {
                 )}
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Output Slide Name
                   </label>
                   <input
@@ -523,7 +526,7 @@ function App() {
                 {useCustomTemplate && (
                   <>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-900 mb-2">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
                         Template ID or URL
                       </label>
                       <div className="flex gap-2">
