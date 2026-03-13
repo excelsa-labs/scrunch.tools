@@ -13,7 +13,7 @@ import { runAnalysis, applySelection, TopicGroup } from './engine/pipeline';
 import { ConstraintAxis, TopicAnalysis, TopicResult } from './engine/types';
 import { DEFAULT_STRATEGIES } from './engine/strategies';
 import { CONSTRAINT_DEFAULTS } from './types';
-import { Download, RotateCcw, Info } from 'lucide-react';
+import { Download, RotateCcw, Info, AlertTriangle } from 'lucide-react';
 import { strategyLabel } from './utils/strategyLabels';
 
 function App() {
@@ -28,6 +28,7 @@ function App() {
   const [selectedTopicIdx, setSelectedTopicIdx] = useState(0);
   const [running, setRunning] = useState(false);
   const [parseErrors, setParseErrors] = useState<string[]>([]);
+  const [forceTopicIds, setForceTopicIds] = useState<Set<string>>(new Set());
 
   const constraint = useMemo(() => ({ axis: constraintAxis, value: constraintValue }), [constraintAxis, constraintValue]);
 
@@ -47,21 +48,29 @@ function App() {
     setRunning(true);
     setTimeout(() => {
       const newAnalyses = runAnalysis(groups);
-      const newResults = applySelection(newAnalyses, constraint, strategyOverride);
+      const newResults = applySelection(newAnalyses, constraint, strategyOverride, forceTopicIds);
       setAnalyses(newAnalyses);
       setResults(newResults);
       setSelectedTopicIdx(0);
       setStep('results');
       setRunning(false);
     }, 50);
-  }, [groups, constraint, strategyOverride]);
+  }, [groups, constraint, strategyOverride, forceTopicIds]);
 
   // Instant re-selection when strategy changes on results page
   const handleStrategyChangeOnResults = useCallback((newStrategy: string) => {
     setStrategyOverride(newStrategy);
-    const newResults = applySelection(analyses, constraint, newStrategy);
+    const newResults = applySelection(analyses, constraint, newStrategy, forceTopicIds);
     setResults(newResults);
-  }, [analyses, constraint]);
+  }, [analyses, constraint, forceTopicIds]);
+
+  const handleForceOverride = useCallback((topicId: string) => {
+    const updated = new Set(forceTopicIds);
+    updated.add(topicId);
+    setForceTopicIds(updated);
+    const newResults = applySelection(analyses, constraint, strategyOverride, updated);
+    setResults(newResults);
+  }, [forceTopicIds, analyses, constraint, strategyOverride]);
 
   const handleExport = useCallback(() => {
     const csv = exportManifestCSV(results, { constraint, strategy: strategyOverride });
@@ -76,6 +85,7 @@ function App() {
     setResults([]);
     setParseErrors([]);
     setStrategyOverride('weighted_50_50');
+    setForceTopicIds(new Set());
   }, []);
 
   const selectedResult = results[selectedTopicIdx];
@@ -206,6 +216,44 @@ function App() {
                   </select>
                 </div>
               </div>
+
+              {!selectedResult.flatness.isFlat && !forceTopicIds.has(selectedResult.topicId) && (
+                <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg mb-4">
+                  <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-amber-800">Pruning not recommended for this topic</p>
+                    <p className="text-sm text-amber-700 mt-1">
+                      This topic's coverage curve hasn't flattened — each prompt still adds meaningful new URLs.
+                      All prompts are being kept. You can override this if you'd like to prune anyway.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleForceOverride(selectedResult.topicId)}
+                    className="px-3 py-1.5 text-xs font-medium text-amber-700 bg-amber-100 hover:bg-amber-200 border border-amber-300 rounded-lg transition-colors flex-shrink-0"
+                  >
+                    Prune Anyway
+                  </button>
+                </div>
+              )}
+
+              {!selectedResult.flatness.isFlat && forceTopicIds.has(selectedResult.topicId) && (
+                <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg mb-4">
+                  <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                  <p className="text-xs text-amber-700 flex-1">Flatness check overridden — pruning results shown despite rising coverage curve.</p>
+                  <button
+                    onClick={() => {
+                      const updated = new Set(forceTopicIds);
+                      updated.delete(selectedResult.topicId);
+                      setForceTopicIds(updated);
+                      const newResults = applySelection(analyses, constraint, strategyOverride, updated);
+                      setResults(newResults);
+                    }}
+                    className="px-3 py-1 text-xs font-medium text-amber-700 bg-amber-100 hover:bg-amber-200 border border-amber-300 rounded-lg transition-colors flex-shrink-0"
+                  >
+                    Keep All
+                  </button>
+                </div>
+              )}
 
               <ManifestTable manifest={selectedResult.manifest} />
             </div>

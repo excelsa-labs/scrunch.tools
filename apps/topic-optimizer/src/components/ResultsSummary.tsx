@@ -1,5 +1,5 @@
 import { TopicResult } from '../engine/types';
-import { Scissors, Shield, Globe } from 'lucide-react';
+import { Scissors, Shield, Globe, AlertTriangle } from 'lucide-react';
 import { strategyLabel } from '../utils/strategyLabels';
 
 interface ResultsSummaryProps {
@@ -22,7 +22,14 @@ export function ResultsSummary({ results, onSelectTopic }: ResultsSummaryProps) 
             onClick={() => onSelectTopic(i)}
             className="text-left bg-white rounded-lg border border-gray-200 p-4 hover:border-violet-400 hover:shadow-md transition-all"
           >
-            <h3 className="font-semibold text-gray-900 mb-2 truncate">{r.topicName}</h3>
+            <div className="flex items-center gap-2 mb-2">
+              <h3 className="font-semibold text-gray-900 truncate">{r.topicName}</h3>
+              {!r.flatness.isFlat && (
+                <span className="flex items-center gap-1 px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded text-xs font-medium flex-shrink-0">
+                  <AlertTriangle className="w-3 h-3" />
+                </span>
+              )}
+            </div>
             <div className="space-y-1.5 text-sm">
               <div className="flex items-center gap-2 text-gray-600">
                 <Scissors className="w-3.5 h-3.5 text-violet-500" />

@@ -65,16 +65,34 @@ export function applySelection(
   analyses: TopicAnalysis[],
   constraint: Constraint,
   strategy: string,
+  forceOverrides?: Set<string>,
 ): TopicResult[] {
-  return analyses.map(a => selectForAnalysis(a, constraint, strategy));
+  return analyses.map(a => selectForAnalysis(a, constraint, strategy, forceOverrides));
 }
 
 function selectForAnalysis(
   analysis: TopicAnalysis,
   constraint: Constraint,
   strategy: string,
+  forceOverrides?: Set<string>,
 ): TopicResult {
   const { trajectories, baselineCoverage, baselineResilience } = analysis;
+  const isForced = forceOverrides?.has(analysis.topicId) ?? false;
+
+  // Non-flat and not overridden: keep everything
+  if (!analysis.flatness.isFlat && !isForced) {
+    const manifest = buildManifest(analysis, []);
+    return {
+      ...analysis,
+      selectedPoint: null,
+      selectedBudget: analysis.nPrompts,
+      selectedStrategy: 'none',
+      selectedCoverage: baselineCoverage,
+      selectedResilience: baselineResilience,
+      cutIndices: [],
+      manifest,
+    };
+  }
 
   let selectedPoint = null;
   let selectedBudget = analysis.nPrompts;
