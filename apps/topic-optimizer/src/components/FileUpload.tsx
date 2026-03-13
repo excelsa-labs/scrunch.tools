@@ -56,7 +56,7 @@ export function FileUpload({ onCSVLoaded }: FileUploadProps) {
           Drop a CSV file here, or click to browse
         </p>
         <p className="text-sm text-gray-500">
-          Requires columns: topic_id, prompt_id, url
+          Accepts Scrunch API Exporter CSV or any CSV with prompt and URL columns
         </p>
       </div>
 
